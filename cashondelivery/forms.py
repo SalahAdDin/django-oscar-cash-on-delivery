@@ -2,17 +2,13 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from oscar.apps.payment import forms as payment_forms
-from oscar.core.loading import get_class
-from oscar.core.loading import get_classes
 from oscar.core.loading import get_model
-
 
 Country = get_model('address', 'Country')
 BillingAddress = get_model("order", "BillingAddress")
 
 
 class BillingAddressForm(payment_forms.BillingAddressForm):
-
     """
     Extended version of the core billing address form that adds a field so
     customers can choose to re-use their shipping address.
@@ -23,7 +19,11 @@ class BillingAddressForm(payment_forms.BillingAddressForm):
         (NEW_ADDRESS, _('Enter a new address')),
     )
     same_as_shipping = forms.ChoiceField(
-        widget=forms.RadioSelect, choices=CHOICES, initial=SAME_AS_SHIPPING)
+        widget=forms.RadioSelect,
+        choices=CHOICES,
+        initial=SAME_AS_SHIPPING,
+        label=_('Shipping')
+    )
 
     class Meta(payment_forms.BillingAddressForm):
         model = BillingAddress
@@ -35,6 +35,10 @@ class BillingAddressForm(payment_forms.BillingAddressForm):
 
         super(BillingAddressForm, self).__init__(data, *args, **kwargs)
         self.adjust_country_field()
+
+        self.order_fields(
+            ['same_as_shipping']
+        )
 
         # If no shipping address (eg a download), then force the
         # 'same_as_shipping' field to have a certain value.
@@ -75,7 +79,8 @@ class BillingAddressForm(payment_forms.BillingAddressForm):
 
     def adjust_country_field(self):
         countries = Country._default_manager.filter(
-            is_shipping_country=True)
+            is_shipping_country=True
+        )
 
         # No need to show country dropdown if there is only one option
         if len(countries) == 1:

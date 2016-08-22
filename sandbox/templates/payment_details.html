@@ -1,34 +1,20 @@
-{% extends "checkout/checkout.html" %}
+{% extends 'oscar/checkout/payment_details.html' %}
 {% load i18n %}
 
-{% block title %}
-    {% trans "Payment details" %} | {{ block.super }}
-{% endblock %}
+{% block payment_details %}
+        <div class="well">
 
-{% block checkout_nav %}
-    {% include 'checkout/nav.html' with step=3 %}
-{% endblock %}
+        <div class="sub-header">
+            <h3>{% trans "Cash on Delivery" %}</h3>
+        </div>
+                <form action="{% url 'checkout:preview' %}" class="form-stacked" method="post">
+            {% csrf_token %}
+            {{ billing_address_form.non_field_errors }}
 
-{% block checkout_title %}{% trans "What address should the invoice be issued to?" %}{% endblock %}
-
-{% block order_contents %}{% endblock %}
-{% block shipping_address %}{% endblock %}
-{% block shipping_method %}{% endblock %}
-
-{% block payment_method %}
-    
-    <p>{% trans "You've chosen to pay cash on delivery." %}</p>
-
-    <div class="row-fluid">
-        <div class="well col-sm-6">
-        <form action="{% url 'checkout:preview' %}" class="payment-details form-horizontal" method="post">
-
-                {% csrf_token %}
-                {{ billing_address_form.non_field_errors }}
-
-                {% if basket.is_shipping_required %}
-                    <p>
-                       <label for="{{ billing_address_form.same_as_shipping.0.id_for_label }}" class="radio">
+            {% if basket.is_shipping_required %}
+                <div class="form-group">
+                    <ul>
+                        <label for="{{ billing_address_form.same_as_shipping.0.id_for_label }}" class="radio">
                             {{ billing_address_form.same_as_shipping.0.tag }}
                             {{ billing_address_form.same_as_shipping.0.choice_label }}
                         </label>
@@ -36,30 +22,31 @@
                             {{ billing_address_form.same_as_shipping.1.tag }}
                             {{ billing_address_form.same_as_shipping.1.choice_label }}
                         </label>
-                    </p>
-                    <div id="billing_address_form" style="display:none">
-                {% else %}
-                    <div style="">
-                        {{ billing_address_form.same_as_shipping }}
-                    </div>
-                    <div id="billing_address_form">
-                {% endif %}
-                {% include 'partials/form_field.html' with field=billing_address_form.line1 %}
-                {% include 'partials/form_field.html' with field=billing_address_form.line2 %}
-                {% include 'partials/form_field.html' with field=billing_address_form.line3 %}
-                {% include 'partials/form_field.html' with field=billing_address_form.line4 %}
-                {% include 'partials/form_field.html' with field=billing_address_form.stateorcounty %}
-                {% include 'partials/form_field.html' with field=billing_address_form.postcode %}
-                {% include 'partials/form_field.html' with field=billing_address_form.country %}
-                    </div>
-           
-            <button type="submit" class="pull-right btn btn-large btn-primary">{% trans "Continue" %}</button>
+                    </ul>
+                </div>
+                <div id="billing_address_form" style="display:none">
+            {% else %}
+                <div style="">
+                    {{ billing_address_form.same_as_shipping }}
+                </div>
+                <div id="billing_address_form">
+            {% endif %}
+            {% include 'partials/form_field.html' with field=billing_address_form.line1 %}
+            {% include 'partials/form_field.html' with field=billing_address_form.line2 %}
+            {% include 'partials/form_field.html' with field=billing_address_form.line3 %}
+            {% include 'partials/form_field.html' with field=billing_address_form.country %}
+            {% include 'partials/form_field.html' with field=billing_address_form.state %}
+            {% include 'partials/form_field.html' with field=billing_address_form.line4 %}
+            {% include 'partials/form_field.html' with field=billing_address_form.postcode %}
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-large btn-primary">{% trans "Continue" %}</button>
+            </div>
         </form>
                 
-        </div>           
-    </div>
+        </div>
 
-{% endblock payment_method %}
+{% endblock %}
 
 
 {% block onbodyload %}
